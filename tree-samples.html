@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>신앙 나무 시각화 샘플 6종</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Noto Sans KR',sans-serif;background:#111;color:#fff;overflow-x:hidden;}
+
+/* ── TOP NAV ── */
+.top-nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  background:rgba(10,10,10,0.95);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  padding:0 16px;
+  display:flex;gap:0;overflow-x:auto;scrollbar-width:none;
+}
+.top-nav::-webkit-scrollbar{display:none;}
+.tnb{
+  flex-shrink:0;padding:14px 18px;
+  background:none;border:none;cursor:pointer;
+  font-family:'Noto Sans KR',sans-serif;
+  font-size:12px;font-weight:600;
+  color:rgba(255,255,255,0.35);
+  border-bottom:2px solid transparent;
+  transition:all .2s;white-space:nowrap;
+}
+.tnb.active{color:#fff;border-bottom-color:#52B788;}
+.tnb:hover{color:rgba(255,255,255,0.7);}
+
+.tnb .tag{
+  display:inline-block;margin-left:6px;
+  font-size:9px;font-weight:800;
+  padding:2px 6px;border-radius:4px;
+  letter-spacing:.5px;
+  vertical-align:middle;
+}
+.tnb .tag.hist{background:rgba(82,183,136,0.2);color:#52B788;}
+.tnb .tag.comp{background:rgba(244,162,97,0.2);color:#F4A261;}
+
+/* ── SECTIONS ── */
+.sec{display:none;min-height:100vh;padding-top:52px;}
+.sec.active{display:block;}
+
+/* ══════════════════════════════════════════
+   HISTORY A: 같은 나무에 가지로 추가
+   이력 스타일 A × 수료강조: 열매/꽃 애니
+══════════════════════════════════════════ */
+#hA{background:linear-gradient(160deg,#0a1a0f 0%,#0d2418 40%,#0a1a0f 100%);}
+
+.hA-wrap{max-width:420px;margin:0 auto;padding:32px 20px 80px;}
+
+.hA-profile{
+  display:flex;align-items:center;gap:14px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:16px;padding:18px 20px;margin-bottom:32px;
+}
+.hA-av{
+  width:46px;height:46px;border-radius:50%;
+  background:linear-gradient(135deg,#52B788,#2D6A4F);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:900;color:white;
+}
+.hA-profile h3{font-size:16px;font-weight:700;color:white;}
+.hA-profile p{font-size:12px;color:rgba(255,255,255,0.4);margin-top:3px;}
+.hA-pct{margin-left:auto;text-align:right;}
+.hA-pct strong{font-size:22px;font-weight:900;color:#52B788;}
+.hA-pct small{display:block;font-size:10px;color:rgba(255,255,255,0.3);}
+
+/* TREE CANVAS */
+.hA-tree{
+  position:relative;
+  display:flex;flex-direction:column;align-items:center;
+  gap:0;
+}
+
+/* 뿌리 */
+.hA-roots{
+  width:100%;
+  background:rgba(139,90,43,0.15);
+  border:1px solid rgba(139,90,43,0.3);
+  border-radius:16px;padding:16px 20px;
+  margin-top:16px;
+}
+.hA-roots-title{
+  font-size:11px;font-weight:700;color:rgba(139,90,43,0.8);
+  letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;
+}
+.hA-root-items{display:flex;flex-wrap:wrap;gap:8px;}
+.hA-root-item{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(139,90,43,0.2);border:1px solid rgba(139,90,43,0.4);
+  border-radius:20px;padding:5px 12px;
+  font-size:11px;font-weight:600;color:rgba(255,220,150,0.8);
+}
+
+/* 줄기 */
+.hA-trunk{
+  width:4px;height:32px;
+  background:linear-gradient(to bottom,rgba(139,90,43,0.5),rgba(82,183,136,0.5));
+  margin:0 auto;
+}
+
+/* 가지 그룹 */
+.hA-branches{width:100%;display:flex;flex-direction:column;gap:12px;}
+
+.hA-branch{
+  border-radius:14px;overflow:hidden;
+  border:1px solid;
+  position:relative;
+}
+/* 이전 그룹 – 희미하게 */
+.hA-branch.past{
+  border-color:rgba(255,255,255,0.08);
+  background:rgba(255,255,255,0.02);
+  opacity:0.65;
+}
+/* 현재 그룹 – 선명하게 */
+.hA-branch.current{
+  border-color:rgba(82,183,136,0.4);
+  background:rgba(82,183,136,0.06);
+}
+
+.hA-branch-header{
+  padding:12px 16px;display:flex;align-items:center;gap:10px;
+  cursor:pointer;
+}
+.hA-branch.past .hA-branch-header{background:rgba(255,255,255,0.03);}
+.hA-branch.current .hA-branch-header{background:rgba(82,183,136,0.08);}
+
+.hA-branch-dot{
+  width:10px;height:10px;border-radius:50%;flex-shrink:0;
+}
+.past .hA-branch-dot{background:rgba(255,255,255,0.2);}
+.current .hA-branch-dot{background:#52B788;box-shadow:0 0 8px #52B788;}
+
+.hA-branch-label{flex:1;}
+.hA-branch-label h4{font-size:13px;font-weight:700;color:rgba(255,255,255,0.9);}
+.hA-branch-label p{font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px;}
+.hA-branch-badge{
+  font-size:10px;font-weight:700;padding:3px 10px;border-radius:8px;
+}
+.past .hA-branch-badge{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.3);}
+.current .hA-branch-badge{background:rgba(82,183,136,0.2);color:#52B788;}
+
+/* 잎 목록 */
+.hA-leaves{padding:8px 16px 14px;display:flex;flex-wrap:wrap;gap:8px;}
+
+/* 수료 강조 A: 열매/꽃이 피는 애니메이션 */
+.hA-leaf{
+  position:relative;
+  display:flex;align-items:center;gap:6px;
+  padding:6px 12px 6px 8px;border-radius:20px;
+  font-size:11px;font-weight:600;cursor:pointer;
+  transition:transform .2s;
+  border:1px solid;
+}
+.hA-leaf:hover{transform:scale(1.05);}
+
+.hA-leaf.done{
+  background:rgba(82,183,136,0.12);
+  border-color:rgba(82,183,136,0.4);
+  color:#86EFAC;
+}
+.hA-leaf.progress{
+  background:rgba(244,162,97,0.1);
+  border-color:rgba(244,162,97,0.4);
+  color:#FCD34D;
+}
+.hA-leaf.locked{
+  background:rgba(255,255,255,0.03);
+  border-color:rgba(255,255,255,0.08);
+  color:rgba(255,255,255,0.25);
+}
+
+/* 열매 아이콘 애니 */
+.hA-leaf.done .leaf-icon{
+  display:inline-block;
+  animation:fruitBounce 2s ease-in-out infinite;
+}
+@keyframes fruitBounce{
+  0%,100%{transform:translateY(0) scale(1);}
+  50%{transform:translateY(-3px) scale(1.15);}
+}
+.hA-leaf.progress .leaf-icon{
+  animation:blossom 1.5s ease-in-out infinite;
+}
+@keyframes blossom{
+  0%,100%{transform:rotate(-10deg);}
+  50%{transform:rotate(10deg);}
+}
+
+/* 열매 카운트 */
+.hA-fruit-summary{
+  padding:12px 16px;
+  display:flex;align-items:center;gap:8px;
+  border-top:1px solid rgba(255,255,255,0.05);
+}
+.hA-fruit-summary span{font-size:11px;color:rgba(255,255,255,0.3);}
+.hA-fruits{display:flex;gap:3px;margin-left:auto;}
+.hA-fruit-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:#52B788;
+}
+.hA-fruit-dot.empty{background:rgba(255,255,255,0.08);}
+
+/* 열매 존 */
+.hA-harvest{
+  width:100%;margin-top:12px;
+  background:rgba(244,162,97,0.06);
+  border:1px solid rgba(244,162,97,0.2);
+  border-radius:14px;padding:16px 20px;
+}
+.hA-harvest-title{
+  font-size:11px;font-weight:700;
+  color:rgba(244,162,97,0.7);
+  letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;
+}
+.hA-harvest-items{display:flex;flex-wrap:wrap;gap:8px;}
+.hA-harvest-item{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 14px;border-radius:20px;
+  font-size:11px;font-weight:600;
+  background:rgba(244,162,97,0.1);
+  border:1px solid rgba(244,162,97,0.3);
+  color:#FCD34D;
+}
+.hA-harvest-item.locked{
+  background:rgba(255,255,255,0.03);
+  border-color:rgba(255,255,255,0.06);
+  color:rgba(255,255,255,0.2);
+}
+
+/* ══════════════════════════════════════════
+   HISTORY B: 나무가 성장하는 타임라인
+   수료강조: 빛나는 배지/스탬프
+══════════════════════════════════════════ */
+#hB{background:linear-gradient(160deg,#1a1200 0%,#1f1800 40%,#1a1200 100%);}
+
+.hB-wrap{max-width:420px;margin:0 auto;padding:32px 20px 80px;}
+
+.hB-profile{
+  display:flex;align-items:center;gap:14px;
+  background:rgba(244,162,97,0.06);
+  border:1px solid rgba(244,162,97,0.15);
+  border-radius:16px;padding:18px 20px;margin-bottom:28px;
+}
+.hB-av{
+  width:46px;height:46px;border-radius:50%;
+  background:linear-gradient(135deg,#F4A261,#E76F51);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:900;color:white;
+}
+.hB-profile h3{font-size:16px;font-weight:700;color:white;}
+.hB-profile p{font-size:12px;color:rgba(255,255,255,0.4);margin-top:3px;}
+.hB-total{margin-left:auto;text-align:center;}
+.hB-total strong{font-size:20px;font-weight:900;color:#F4A261;}
+.hB-total small{display:block;font-size:10px;color:rgba(255,255,255,0.3);}
+
+/* 성장 타임라인 */
+.hB-timeline{position:relative;padding-left:40px;}
+.hB-timeline::before{
+  content:'';position:absolute;left:14px;top:0;bottom:0;
+  width:2px;
+  background:linear-gradient(to bottom,
+    rgba(139,90,43,0.6) 0%,
+    rgba(139,90,43,0.6) 25%,
+    rgba(82,183,136,0.6) 25%,
+    rgba(82,183,136,0.6) 55%,
+    rgba(244,162,97,0.6) 55%,
+    rgba(244,162,97,0.6) 80%,
+    rgba(59,130,246,0.6) 80%
+  );
+}
+
+.hB-era{margin-bottom:28px;position:relative;}
+.hB-era-dot{
+  position:absolute;left:-34px;top:4px;
+  width:20px;height:20px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:900;border:2px solid;
+}
+.era-past .hB-era-dot{background:#1a1200;border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.3);}
+.era-now .hB-era-dot{background:#2D6A4F;border-color:#52B788;color:white;box-shadow:0 0 10px rgba(82,183,136,0.5);}
+
+.hB-era-header{margin-bottom:10px;}
+.hB-era-header h4{font-size:14px;font-weight:800;color:white;}
+.hB-era-header p{font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px;}
+
+/* 나무 크기 표현 */
+.hB-tree-visual{
+  display:flex;align-items:flex-end;gap:3px;
+  margin-bottom:10px;
+}
+.hB-tree-bar{
+  border-radius:3px 3px 0 0;width:12px;
+  background:rgba(82,183,136,0.3);
+  transition:height .3s;
+}
+.hB-tree-trunk{width:8px;background:rgba(139,90,43,0.5);border-radius:2px;}
+
+/* 수료강조 B: 빛나는 배지 */
+.hB-badges{display:flex;flex-wrap:wrap;gap:7px;}
+.hB-badge{
+  position:relative;
+  display:flex;align-items:center;gap:5px;
+  padding:5px 10px;border-radius:8px;
+  font-size:11px;font-weight:700;
+  cursor:pointer;transition:all .2s;
+  overflow:hidden;
+}
+.hB-badge::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.1),transparent);
+  opacity:0;transition:opacity .2s;
+}
+.hB-badge:hover::before{opacity:1;}
+.hB-badge:hover{transform:translateY(-2px);}
+
+.hB-badge.done{
+  background:linear-gradient(135deg,rgba(82,183,136,0.2),rgba(45,106,79,0.3));
+  border:1px solid rgba(82,183,136,0.5);
+  color:#86EFAC;
+  box-shadow:0 2px 8px rgba(82,183,136,0.2);
+}
+.hB-badge.done::after{
+  content:'✦';position:absolute;top:-2px;right:2px;
+  font-size:8px;color:#F4A261;
+  animation:twinkle 2s ease-in-out infinite;
+}
+@keyframes twinkle{
+  0%,100%{opacity:0;transform:scale(0.5);}
+  50%{opacity:1;transform:scale(1.2);}
+}
+.hB-badge.progress{
+  background:linear-gradient(135deg,rgba(244,162,97,0.15),rgba(231,111,81,0.15));
+  border:1px solid rgba(244,162,97,0.4);
+  color:#FCD34D;
+}
+.hB-badge.locked{
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.07);
+  color:rgba(255,255,255,0.2);
+}
+.hB-badge-shine{
+  position:absolute;top:0;left:-100%;width:60%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);
+  animation:shine 3s ease-in-out infinite;
+}
+@keyframes shine{
+  0%{left:-100%;}40%,100%{left:150%;}
+}
+
+/* ══════════════════════════════════════════
+   HISTORY C: 뿌리쪽에 이전 이력 표시
+   수료강조: 가지에 잎이 채워지는 방식
+══════════════════════════════════════════ */
+#hC{background:linear-gradient(160deg,#0e0e1a 0%,#141428 40%,#0e0e1a 100%);}
+
+.hC-wrap{max-width:440px;margin:0 auto;padding:32px 20px 80px;}
+
+.hC-profile{
+  display:flex;align-items:center;gap:14px;
+  background:rgba(139,92,246,0.06);
+  border:1px solid rgba(139,92,246,0.15);
+  border-radius:16px;padding:18px 20px;margin-bottom:28px;
+}
+.hC-av{
+  width:46px;height:46px;border-radius:50%;
+  background:linear-gradient(135deg,#8B5CF6,#6D28D9);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:900;color:white;
+}
+.hC-profile h3{font-size:16px;font-weight:700;color:white;}
+.hC-profile p{font-size:12px;color:rgba(255,255,255,0.4);margin-top:3px;}
+.hC-stat{margin-left:auto;text-align:right;}
+.hC-stat strong{font-size:20px;font-weight:900;color:#A78BFA;}
+.hC-stat small{display:block;font-size:10px;color:rgba(255,255,255,0.3);}
+
+/* ── 나무 전체 레이아웃 ── */
+.hC-tree-layout{display:flex;flex-direction:column;align-items:center;gap:0;}
+
+/* 열매 zone */
+.hC-fruits-zone{
+  width:100%;background:rgba(244,162,97,0.06);
+  border:1px solid rgba(244,162,97,0.2);border-radius:14px;
+  padding:14px 16px;margin-bottom:6px;
+}
+.hC-zone-label{
+  font-size:10px;font-weight:800;letter-spacing:1.5px;
+  text-transform:uppercase;margin-bottom:10px;
+  display:flex;align-items:center;gap:6px;
+}
+.fruits-zone .hC-zone-label{color:rgba(244,162,97,0.7);}
+.branch-zone .hC-zone-label{color:rgba(82,183,136,0.7);}
+.root-zone .hC-zone-label{color:rgba(139,90,43,0.7);}
+
+.hC-connector{
+  width:3px;height:20px;
+  background:linear-gradient(to bottom,rgba(82,183,136,0.4),rgba(139,90,43,0.4));
+}
+
+/* 현재 가지 zone */
+.hC-branch-zone{
+  width:100%;background:rgba(82,183,136,0.06);
+  border:1px solid rgba(82,183,136,0.2);border-radius:14px;
+  padding:14px 16px;margin-bottom:6px;
+}
+
+/* 뿌리 zone – 이전 이력 포함 */
+.hC-root-zone{
+  width:100%;
+  background:rgba(139,90,43,0.08);
+  border:1px solid rgba(139,90,43,0.25);border-radius:14px;
+  padding:14px 16px;
+}
+
+/* 수료강조 C: 잎 채우기 */
+.hC-leaf-row{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 0;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  cursor:pointer;transition:all .2s;
+}
+.hC-leaf-row:last-child{border-bottom:none;}
+.hC-leaf-row:hover{padding-left:4px;}
+
+/* 잎 아이콘 행 */
+.hC-leaf-icons{display:flex;gap:3px;flex-shrink:0;}
+.hC-leaf-pip{
+  width:10px;height:10px;border-radius:50% 0 50% 50%;
+  transform:rotate(-45deg);
+  transition:all .3s;
+}
+.hC-leaf-pip.filled{background:#52B788;}
+.hC-leaf-pip.half{background:rgba(82,183,136,0.35);}
+.hC-leaf-pip.empty{background:rgba(255,255,255,0.07);}
+.hC-leaf-pip.gold{background:#F4A261;}
+
+.hC-leaf-name{font-size:12px;font-weight:600;color:rgba(255,255,255,0.8);flex:1;}
+.hC-leaf-row.locked .hC-leaf-name{color:rgba(255,255,255,0.25);}
+.hC-leaf-status{
+  font-size:10px;font-weight:700;
+  padding:2px 8px;border-radius:6px;flex-shrink:0;
+}
+.done-status{background:rgba(82,183,136,0.15);color:#52B788;}
+.prog-status{background:rgba(244,162,97,0.15);color:#F4A261;}
+.lock-status{background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.2);}
+
+/* 이전 그룹 히스토리 (뿌리 안) */
+.hC-hist-group{margin-bottom:14px;}
+.hC-hist-group:last-child{margin-bottom:0;}
+.hC-hist-header{
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:8px;padding-bottom:6px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.hC-hist-era{
+  font-size:10px;font-weight:800;
+  padding:2px 10px;border-radius:6px;
+  letter-spacing:.5px;
+}
+.era-elem{background:rgba(59,130,246,0.15);color:#60A5FA;}
+.era-teen{background:rgba(139,92,246,0.15);color:#A78BFA;}
+.hC-hist-date{font-size:10px;color:rgba(255,255,255,0.25);}
+.hC-hist-items{display:flex;flex-wrap:wrap;gap:6px;}
+.hC-hist-item{
+  display:flex;align-items:center;gap:4px;
+  padding:4px 10px;border-radius:8px;
+  font-size:10px;font-weight:600;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.07);
+  color:rgba(255,255,255,0.45);
+}
+.hC-hist-item.completed{
+  background:rgba(82,183,136,0.07);
+  border-color:rgba(82,183,136,0.2);
+  color:rgba(134,239,172,0.6);
+}
+
+/* ── 공통 열매 태그 ── */
+.hC-fruit-items{display:flex;flex-wrap:wrap;gap:8px;}
+.hC-fruit{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 14px;border-radius:20px;
+  font-size:11px;font-weight:600;cursor:pointer;
+  transition:all .2s;
+}
+.hC-fruit.done{
+  background:rgba(244,162,97,0.12);
+  border:1px solid rgba(244,162,97,0.35);
+  color:#FCD34D;
+}
+.hC-fruit.done:hover{background:rgba(244,162,97,0.2);transform:translateY(-2px);}
+.hC-fruit.locked{
+  background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.06);
+  color:rgba(255,255,255,0.2);
+}
+
+/* ══════════════════════════════════════════
+   BONUS D,E,F – 조합 샘플
+══════════════════════════════════════════ */
+
+/* D: A(가지)+B(배지) */
+#hD{background:linear-gradient(160deg,#060d12 0%,#091418 100%);}
+/* E: B(타임라인)+C(잎) */
+#hE{background:linear-gradient(160deg,#0d0d0d 0%,#141414 100%);}
+/* F: C(뿌리)+A(열매애니) */
+#hF{background:linear-gradient(160deg,#050a0a 0%,#0a1010 100%);}
+
+.combo-wrap{max-width:420px;margin:0 auto;padding:32px 20px 80px;}
+.combo-label{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  border-radius:8px;padding:6px 14px;margin-bottom:24px;
+  font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);
+  letter-spacing:.5px;
+}
+
+/* ── 공통 유틸 ── */
+.section-title{
+  font-size:11px;font-weight:700;letter-spacing:1.5px;
+  text-transform:uppercase;color:rgba(255,255,255,0.3);
+  margin-bottom:12px;margin-top:24px;
+}
+.section-title:first-child{margin-top:0;}
+</style>
+</head>
+<body>
+
+<div class="top-nav">
+  <button class="tnb active" onclick="show('hA',this)">이력A <span class="tag hist">가지</span> × 수료A <span class="tag comp">열매애니</span></button>
+  <button class="tnb" onclick="show('hB',this)">이력B <span class="tag hist">타임라인</span> × 수료B <span class="tag comp">빛배지</span></button>
+  <button class="tnb" onclick="show('hC',this)">이력C <span class="tag hist">뿌리이력</span> × 수료C <span class="tag comp">잎채우기</span></button>
+  <button class="tnb" onclick="show('hD',this)">조합D <span class="tag hist">가지</span> × <span class="tag comp">빛배지</span></button>
+  <button class="tnb" onclick="show('hE',this)">조합E <span class="tag hist">타임라인</span> × <span class="tag comp">잎채우기</span></button>
+  <button class="tnb" onclick="show('hF',this)">조합F <span class="tag hist">뿌리이력</span> × <span class="tag comp">열매애니</span></button>
+</div>
+
+<!-- ══════ SAMPLE A ══════ -->
+<div id="hA" class="sec active">
+<div class="hA-wrap">
+  <div class="hA-profile">
+    <div class="hA-av">김</div>
+    <div>
+      <h3>김성실 성도</h3>
+      <p>청년1팀 · 25세 · 2023 입교</p>
+    </div>
+    <div class="hA-pct"><strong>42%</strong><small>전체 수료</small></div>
+  </div>
+
+  <!-- 뿌리 -->
+  <div class="hA-roots">
+    <div class="hA-roots-title">🌿 뿌리 · 신앙의 시작</div>
+    <div class="hA-root-items">
+      <div class="hA-root-item">🕊 2015년 유아세례</div>
+      <div class="hA-root-item">✝ 2020년 입교</div>
+      <div class="hA-root-item">📖 첫 성경통독</div>
+    </div>
+  </div>
+
+  <div class="hA-trunk"></div>
+
+  <!-- 가지들 -->
+  <div class="hA-branches">
+
+    <!-- 이전 그룹 1 -->
+    <div class="hA-branch past">
+      <div class="hA-branch-header" onclick="toggle(this)">
+        <div class="hA-branch-dot"></div>
+        <div class="hA-branch-label">
+          <h4>초등3팀</h4>
+          <p>12~13세 · 2016~2017년</p>
+        </div>
+        <span class="hA-branch-badge">완료그룹</span>
+        <span style="color:rgba(255,255,255,0.2);margin-left:8px;font-size:12px;">▾</span>
+      </div>
+      <div class="hA-leaves" style="display:none">
+        <div class="hA-leaf done"><span class="leaf-icon">🍃</span>주일예배</div>
+        <div class="hA-leaf done"><span class="leaf-icon">🍃</span>새가족교육</div>
+        <div class="hA-leaf done"><span class="leaf-icon">🍃</span>여름성경학교</div>
+        <div class="hA-leaf done"><span class="leaf-icon">🍃</span>독서교육</div>
+      </div>
+      <div class="hA-fruit-summary">
+        <span>수료 4/4</span>
+        <div class="hA-fruits">
+          <div class="hA-fruit-dot"></div><div class="hA-fruit-dot"></div>
+          <div class="hA-fruit-dot"></div><div class="hA-fruit-dot"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 이전 그룹 2 -->
+    <div class="hA-branch past">
+      <div class="hA-branch-header" onclick="toggle(this)">
+        <div class="hA-branch-dot"></div>
+        <div class="hA-branch-label">
+          <h4>청소년1팀</h4>
+          <p>14~16세 · 2018~2020년</p>
+        </div>
+        <span class="hA-branch-badge">완료그룹</span>
+        <span style="color:rgba(255,255,255,0.2);margin-left:8px;font-size:12px;">▾</span>
+      </div>
+      <div class="hA-leaves" style="display:none">
+        <div class="hA-leaf done"><span class="leaf-icon">🍃</span>주일예배</div>
+        <div class="hA-leaf done"><span class="leaf-icon">🍃</span>세례/입교</div>
+        <div class="hA-leaf done"><span class="leaf-icon">🍃</span>라이프가이드</div>
+        <div class="hA-leaf done"><span class="leaf-icon">🍃</span>신앙수련회</div>
+        <div class="hA-leaf locked"><span class="leaf-icon">○</span>청소년홀리클럽</div>
+      </div>
+      <div class="hA-fruit-summary">
+        <span>수료 4/5</span>
+        <div class="hA-fruits">
+          <div class="hA-fruit-dot"></div><div class="hA-fruit-dot"></div>
+          <div class="hA-fruit-dot"></div><div class="hA-fruit-dot"></div>
+          <div class="hA-fruit-dot empty"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 이전 그룹 3 -->
+    <div class="hA-branch past">
+      <div class="hA-branch-header" onclick="toggle(this)">
+        <div class="hA-branch-dot"></div>
+        <div class="hA-branch-label">
+          <h4>청소년2팀</h4>
+          <p>17~19세 · 2021~2022년</p>
+        </div>
+        <span class="hA-branch-badge">완료그룹</span>
+        <span style="color:rgba(255,255,255,0.2);margin-left:8px;font-size:12px;">▾</span>
+      </div>
+      <div class="hA-leaves" style="display:none">
+        <div class="hA-leaf done"><span class="leaf-icon">🍃</span>주일예배</div>
+        <div class="hA-leaf done"><span class="leaf-icon">🍃</span>신앙수련회</div>
+        <div class="hA-leaf locked"><span class="leaf-icon">○</span>청소년아이워십</div>
+      </div>
+      <div class="hA-fruit-summary">
+        <span>수료 2/3</span>
+        <div class="hA-fruits">
+          <div class="hA-fruit-dot"></div><div class="hA-fruit-dot"></div>
+          <div class="hA-fruit-dot empty"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 현재 그룹 -->
+    <div class="hA-branch current">
+      <div class="hA-branch-header" onclick="toggle(this)">
+        <div class="hA-branch-dot"></div>
+        <div class="hA-branch-label">
+          <h4>청년1팀 <small style="font-weight:400;opacity:.6">현재</small></h4>
+          <p>20~26세 · 2023년~ 진행중</p>
+        </div>
+        <span class="hA-branch-badge">진행중</span>
+        <span style="color:rgba(82,183,136,0.5);margin-left:8px;font-size:12px;">▴</span>
+      </div>
+      <div class="hA-leaves">
+        <div class="hA-leaf done"><span class="leaf-icon">🍎</span>주일예배/순모임</div>
+        <div class="hA-leaf done"><span class="leaf-icon">🍎</span>새가족교육</div>
+        <div class="hA-leaf done"><span class="leaf-icon">🍎</span>세례/입교교육</div>
+        <div class="hA-leaf progress"><span class="leaf-icon">🌸</span>신앙수련회</div>
+        <div class="hA-leaf locked"><span class="leaf-icon">○</span>MBC 바이블코스</div>
+        <div class="hA-leaf locked"><span class="leaf-icon">○</span>예레미야 리더십</div>
+      </div>
+      <div class="hA-fruit-summary">
+        <span>수료 3/6</span>
+        <div class="hA-fruits">
+          <div class="hA-fruit-dot"></div><div class="hA-fruit-dot"></div>
+          <div class="hA-fruit-dot"></div><div class="hA-fruit-dot empty"></div>
+          <div class="hA-fruit-dot empty"></div><div class="hA-fruit-dot empty"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 열매 -->
+  <div class="hA-trunk" style="background:linear-gradient(to bottom,rgba(82,183,136,0.4),rgba(244,162,97,0.4));"></div>
+  <div class="hA-harvest">
+    <div class="hA-harvest-title">🍎 열매 · 삶 단계 · 신앙확장</div>
+    <div class="hA-harvest-items">
+      <div class="hA-harvest-item locked">🔒 Start to Mission</div>
+      <div class="hA-harvest-item locked">🔒 경제공부</div>
+      <div class="hA-harvest-item locked">🔒 결혼예비학교</div>
+      <div class="hA-harvest-item locked">🔒 청년비전순례</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════ SAMPLE B ══════ -->
+<div id="hB" class="sec">
+<div class="hB-wrap">
+  <div class="hB-profile">
+    <div class="hB-av">김</div>
+    <div>
+      <h3>김성실 성도</h3>
+      <p>청년1팀 · 25세</p>
+    </div>
+    <div class="hB-total"><strong>12</strong><small>총 수료과목</small></div>
+  </div>
+
+  <div class="hB-timeline">
+
+    <!-- era 1: 초등 -->
+    <div class="hB-era era-past">
+      <div class="hB-era-dot">초</div>
+      <div class="hB-era-header">
+        <h4>초등3팀</h4>
+        <p>12~13세 · 2016~2017</p>
+      </div>
+      <div class="hB-tree-visual">
+        <div class="hB-tree-trunk" style="height:20px;"></div>
+        <div class="hB-tree-bar" style="height:14px;"></div>
+        <div class="hB-tree-bar" style="height:18px;"></div>
+        <div class="hB-tree-bar" style="height:12px;"></div>
+      </div>
+      <div class="hB-badges">
+        <div class="hB-badge done"><div class="hB-badge-shine"></div>🍃 주일예배</div>
+        <div class="hB-badge done"><div class="hB-badge-shine"></div>🍃 새가족교육</div>
+        <div class="hB-badge done"><div class="hB-badge-shine"></div>🍃 성경학교</div>
+        <div class="hB-badge done"><div class="hB-badge-shine"></div>🍃 독서교육</div>
+      </div>
+    </div>
+
+    <!-- era 2: 청소년1 -->
+    <div class="hB-era era-past">
+      <div class="hB-era-dot">청</div>
+      <div class="hB-era-header">
+        <h4>청소년1팀</h4>
+        <p>14~16세 · 2018~2020</p>
+      </div>
+      <div class="hB-tree-visual">
+        <div class="hB-tree-trunk" style="height:28px;"></div>
+        <div class="hB-tree-bar" style="height:20px;"></div>
+        <div class="hB-tree-bar" style="height:26px;"></div>
+        <div class="hB-tree-bar" style="height:22px;"></div>
+        <div class="hB-tree-bar" style="height:18px;"></div>
+        <div class="hB-tree-bar" style="height:24px;"></div>
+      </div>
+      <div class="hB-badges">
+        <div class="hB-badge done"><div class="hB-badge-shine"></div>🍃 주일예배</div>
+        <div class="hB-badge done"><div class="hB-badge-shine"></div>🍃 세례/입교</div>
+        <div class="hB-badge done"><div class="hB-badge-shine"></div>🍃 라이프가이드</div>
+        <div class="hB-badge done"><div class="hB-badge-shine"></div>🍃 수련회</div>
+        <div class="hB-badge locked">○ 홀리클럽</div>
+      </div>
+    </div>
+
+    <!-- era 3: 청소년2 -->
+    <div class="hB-era era-past">
+      <div class="hB-era-dot">청</div>
+      <div class="hB-era-header">
+        <h4>청소년2팀</h4>
+        <p>17~19세 · 2021~2022</p>
+      </div>
+      <div class="hB-tree-visual">
+        <div class="hB-tree-trunk" style="height:32px;"></div>
+        <div class="hB-tree-bar" style="height:24px;background:rgba(244,162,97,0.3)"></div>
+        <div class="hB-tree-bar" style="height:30px;background:rgba(244,162,97,0.3)"></div>
+        <div class="hB-tree-bar" style="height:26px;background:rgba(244,162,97,0.3)"></div>
+        <div class="hB-tree-bar" style="height:20px;background:rgba(244,162,97,0.3)"></div>
+        <div class="hB-tree-bar" style="height:28px;background:rgba(244,162,97,0.3)"></div>
+        <div class="hB-tree-bar" style="height:22px;background:rgba(244,162,97,0.3)"></div>
+        <div class="hB-tree-bar" style="height:18px;background:rgba(244,162,97,0.3)"></div>
+      </div>
+      <div class="hB-badges">
+        <div class="hB-badge done"><div class="hB-badge-shine"></div>🍃 주일예배</div>
+        <div class="hB-badge done"><div class="hB-badge-shine"></div>🍃 수련회</div>
+        <div class="hB-badge locked">○ 아이워십</div>
+      </div>
+    </div>
+
+    <!-- era 4: 청년1 (현재) -->
+    <div class="hB-era era-now">
+      <div class="hB-era-dot">✦</div>
+      <div class="hB-era-header">
+        <h4>청년1팀 <span style="color:#52B788;font-size:11px;">● 현재</span></h4>
+        <p>20~26세 · 2023~</p>
+      </div>
+      <div class="hB-tree-visual">
+        <div class="hB-tree-trunk" style="height:40px;background:rgba(139,90,43,0.6)"></div>
+        <div class="hB-tree-bar" style="height:32px;background:rgba(82,183,136,0.5)"></div>
+        <div class="hB-tree-bar" style="height:38px;background:rgba(82,183,136,0.5)"></div>
+        <div class="hB-tree-bar" style="height:34px;background:rgba(82,183,136,0.5)"></div>
+        <div class="hB-tree-bar" style="height:40px;background:rgba(82,183,136,0.5)"></div>
+        <div class="hB-tree-bar" style="height:28px;background:rgba(82,183,136,0.3)"></div>
+        <div class="hB-tree-bar" style="height:36px;background:rgba(82,183,136,0.3)"></div>
+        <div class="hB-tree-bar" style="height:30px;background:rgba(82,183,136,0.2)"></div>
+        <div class="hB-tree-bar" style="height:22px;background:rgba(82,183,136,0.15)"></div>
+      </div>
+      <div class="hB-badges">
+        <div class="hB-badge done"><div class="hB-badge-shine"></div>🍎 주일예배</div>
+        <div class="hB-badge done"><div class="hB-badge-shine"></div>🍎 새가족교육</div>
+        <div class="hB-badge done"><div class="hB-badge-shine"></div>🍎 세례/입교</div>
+        <div class="hB-badge progress">🌸 신앙수련회</div>
+        <div class="hB-badge locked">🔒 MBC코스</div>
+        <div class="hB-badge locked">🔒 예레미야리더십</div>
+        <div class="hB-badge locked">🔒 바이블스터디</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ══════ SAMPLE C ══════ -->
+<div id="hC" class="sec">
+<div class="hC-wrap">
+  <div class="hC-profile">
+    <div class="hC-av">김</div>
+    <div>
+      <h3>김성실 성도</h3>
+      <p>청년1팀 · 25세</p>
+    </div>
+    <div class="hC-stat"><strong>14잎</strong><small>총 수료</small></div>
+  </div>
+
+  <div class="hC-tree-layout">
+
+    <!-- 열매 zone -->
+    <div class="hC-fruits-zone fruits-zone" style="width:100%">
+      <div class="hC-zone-label">🍎 열매 · 삶 단계</div>
+      <div class="hC-fruit-items">
+        <div class="hC-fruit locked">🔒 Start to Mission</div>
+        <div class="hC-fruit locked">🔒 경제공부</div>
+        <div class="hC-fruit locked">🔒 결혼예비학교</div>
+        <div class="hC-fruit locked">🔒 청년비전순례</div>
+      </div>
+    </div>
+
+    <div class="hC-connector"></div>
+
+    <!-- 현재 가지 -->
+    <div class="hC-branch-zone branch-zone" style="width:100%">
+      <div class="hC-zone-label">🌿 가지 · 현재그룹 · 청년1팀</div>
+      <div class="hC-leaf-row">
+        <div class="hC-leaf-icons">
+          <div class="hC-leaf-pip filled"></div><div class="hC-leaf-pip filled"></div><div class="hC-leaf-pip filled"></div>
+        </div>
+        <span class="hC-leaf-name">주일예배 / 순모임</span>
+        <span class="hC-leaf-status done-status">✓ 완료</span>
+      </div>
+      <div class="hC-leaf-row">
+        <div class="hC-leaf-icons">
+          <div class="hC-leaf-pip filled"></div><div class="hC-leaf-pip filled"></div><div class="hC-leaf-pip filled"></div>
+        </div>
+        <span class="hC-leaf-name">새가족 교육</span>
+        <span class="hC-leaf-status done-status">✓ 완료</span>
+      </div>
+      <div class="hC-leaf-row">
+        <div class="hC-leaf-icons">
+          <div class="hC-leaf-pip filled"></div><div class="hC-leaf-pip filled"></div><div class="hC-leaf-pip filled"></div>
+        </div>
+        <span class="hC-leaf-name">세례 / 입교 교육</span>
+        <span class="hC-leaf-status done-status">✓ 완료</span>
+      </div>
+      <div class="hC-leaf-row">
+        <div class="hC-leaf-icons">
+          <div class="hC-leaf-pip gold"></div><div class="hC-leaf-pip half"></div><div class="hC-leaf-pip empty"></div>
+        </div>
+        <span class="hC-leaf-name">신앙수련회</span>
+        <span class="hC-leaf-status prog-status">▶ 진행</span>
+      </div>
+      <div class="hC-leaf-row locked">
+        <div class="hC-leaf-icons">
+          <div class="hC-leaf-pip empty"></div><div class="hC-leaf-pip empty"></div><div class="hC-leaf-pip empty"></div>
+        </div>
+        <span class="hC-leaf-name">MBC 바이블 베이직 코스</span>
+        <span class="hC-leaf-status lock-status">🔒</span>
+      </div>
+      <div class="hC-leaf-row locked">
+        <div class="hC-leaf-icons">
+          <div class="hC-leaf-pip empty"></div><div class="hC-leaf-pip empty"></div><div class="hC-leaf-pip empty"></div>
+        </div>
+        <span class="hC-leaf-name">예레미야 리더십</span>
+        <span class="hC-leaf-status lock-status">🔒</span>
+      </div>
+    </div>
+
+    <div class="hC-connector" style="background:linear-gradient(to bottom,rgba(82,183,136,0.3),rgba(139,90,43,0.4));"></div>
+
+    <!-- 뿌리 zone: 이전 이력 -->
+    <div class="hC-root-zone root-zone" style="width:100%">
+      <div class="hC-zone-label">🌱 뿌리 · 신앙 이력</div>
+
+      <div class="hC-hist-group">
+        <div class="hC-hist-header">
+          <span class="hC-hist-era era-teen">청소년2팀</span>
+          <span class="hC-hist-date">17~19세 · 2021~2022</span>
+        </div>
+        <div class="hC-hist-items">
+          <div class="hC-hist-item completed">✓ 주일예배</div>
+          <div class="hC-hist-item completed">✓ 수련회</div>
+          <div class="hC-hist-item">○ 아이워십</div>
+        </div>
+      </div>
+
+      <div class="hC-hist-group">
+        <div class="hC-hist-header">
+          <span class="hC-hist-era era-teen">청소년1팀</span>
+          <span class="hC-hist-date">14~16세 · 2018~2020</span>
+        </div>
+        <div class="hC-hist-items">
+          <div class="hC-hist-item completed">✓ 주일예배</div>
+          <div class="hC-hist-item completed">✓ 세례/입교</div>
+          <div class="hC-hist-item completed">✓ 라이프가이드</div>
+          <div class="hC-hist-item completed">✓ 수련회</div>
+          <div class="hC-hist-item">○ 홀리클럽</div>
+        </div>
+      </div>
+
+      <div class="hC-hist-group">
+        <div class="hC-hist-header">
+          <span class="hC-hist-era era-elem">초등3팀</span>
+          <span class="hC-hist-date">12~13세 · 2016~2017</span>
+        </div>
+        <div class="hC-hist-items">
+          <div class="hC-hist-item completed">✓ 주일예배</div>
+          <div class="hC-hist-item completed">✓ 새가족교육</div>
+          <div class="hC-hist-item completed">✓ 성경학교</div>
+          <div class="hC-hist-item completed">✓ 독서교육</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ══════ SAMPLE D: 가지이력 + 빛배지 ══════ -->
+<div id="hD" class="sec">
+<div class="combo-wrap">
+  <div class="combo-label">📋 조합 D — 이력: 가지 접기/펼치기 &nbsp;×&nbsp; 수료: 빛나는 배지</div>
+
+  <div class="hA-profile" style="background:rgba(59,130,246,0.06);border-color:rgba(59,130,246,0.15)">
+    <div class="hA-av" style="background:linear-gradient(135deg,#3B82F6,#1D4ED8)">김</div>
+    <div><h3>김성실 성도</h3><p>청년1팀 · 25세</p></div>
+    <div class="hA-pct"><strong style="color:#60A5FA">42%</strong><small>전체 수료</small></div>
+  </div>
+
+  <div class="hA-roots" style="background:rgba(59,130,246,0.06);border-color:rgba(59,130,246,0.2)">
+    <div class="hA-roots-title" style="color:rgba(96,165,250,0.7)">🌿 신앙의 뿌리</div>
+    <div class="hA-root-items">
+      <div class="hA-root-item" style="background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,0.3);color:rgba(147,197,253,0.8)">🕊 2015 유아세례</div>
+      <div class="hA-root-item" style="background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,0.3);color:rgba(147,197,253,0.8)">✝ 2020 입교</div>
+    </div>
+  </div>
+  <div class="hA-trunk" style="background:linear-gradient(to bottom,rgba(59,130,246,0.3),rgba(82,183,136,0.4))"></div>
+
+  <div class="hA-branches">
+    <div class="hA-branch past" style="border-color:rgba(255,255,255,0.07)">
+      <div class="hA-branch-header" onclick="toggle(this)">
+        <div class="hA-branch-dot"></div>
+        <div class="hA-branch-label"><h4>청소년1팀</h4><p>14~16세 · 2018~2020</p></div>
+        <span class="hA-branch-badge">완료그룹</span>
+        <span style="color:rgba(255,255,255,0.2);margin-left:8px">▾</span>
+      </div>
+      <div class="hA-leaves" style="display:none">
+        <div class="hB-badge done" style="font-size:11px"><div class="hB-badge-shine"></div>✦ 주일예배</div>
+        <div class="hB-badge done" style="font-size:11px"><div class="hB-badge-shine"></div>✦ 세례/입교</div>
+        <div class="hB-badge done" style="font-size:11px"><div class="hB-badge-shine"></div>✦ 라이프가이드</div>
+        <div class="hB-badge done" style="font-size:11px"><div class="hB-badge-shine"></div>✦ 수련회</div>
+      </div>
+      <div class="hA-fruit-summary"><span>수료 4/5</span></div>
+    </div>
+
+    <div class="hA-branch current" style="border-color:rgba(96,165,250,0.35);background:rgba(59,130,246,0.05)">
+      <div class="hA-branch-header" onclick="toggle(this)">
+        <div class="hA-branch-dot" style="background:#60A5FA;box-shadow:0 0 8px #60A5FA"></div>
+        <div class="hA-branch-label"><h4>청년1팀 <small style="opacity:.5">현재</small></h4><p>20~26세 · 2023~</p></div>
+        <span class="hA-branch-badge" style="background:rgba(96,165,250,0.15);color:#60A5FA">진행중</span>
+        <span style="color:rgba(96,165,250,0.5);margin-left:8px">▴</span>
+      </div>
+      <div class="hA-leaves">
+        <div class="hB-badge done"><div class="hB-badge-shine"></div>✦ 주일예배</div>
+        <div class="hB-badge done"><div class="hB-badge-shine"></div>✦ 새가족교육</div>
+        <div class="hB-badge done"><div class="hB-badge-shine"></div>✦ 세례/입교</div>
+        <div class="hB-badge progress">🌸 신앙수련회</div>
+        <div class="hB-badge locked">🔒 MBC코스</div>
+        <div class="hB-badge locked">🔒 예레미야</div>
+      </div>
+      <div class="hA-fruit-summary"><span>수료 3/6</span></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════ SAMPLE E: 타임라인 + 잎채우기 ══════ -->
+<div id="hE" class="sec">
+<div class="combo-wrap">
+  <div class="combo-label">📋 조합 E — 이력: 성장 타임라인 &nbsp;×&nbsp; 수료: 잎 채우기</div>
+
+  <div class="hA-profile" style="background:rgba(245,158,11,0.06);border-color:rgba(245,158,11,0.15)">
+    <div class="hA-av" style="background:linear-gradient(135deg,#F59E0B,#D97706)">김</div>
+    <div><h3>김성실 성도</h3><p>청년1팀 · 25세</p></div>
+    <div class="hA-pct"><strong style="color:#FCD34D">42%</strong><small>전체수료</small></div>
+  </div>
+
+  <div class="hB-timeline" style="--line-color:rgba(245,158,11,0.3)">
+
+    <div class="hB-era era-past">
+      <div class="hB-era-dot" style="border-color:rgba(245,158,11,0.3);color:rgba(245,158,11,0.4)">초</div>
+      <div class="hB-era-header"><h4>초등3팀</h4><p>12~13세 · 2016~2017</p></div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div class="hC-leaf-row" style="border-color:rgba(255,255,255,0.04)">
+          <div class="hC-leaf-icons"><div class="hC-leaf-pip filled"></div><div class="hC-leaf-pip filled"></div><div class="hC-leaf-pip filled"></div></div>
+          <span class="hC-leaf-name">주일예배</span><span class="hC-leaf-status done-status">✓</span>
+        </div>
+        <div class="hC-leaf-row" style="border-color:rgba(255,255,255,0.04)">
+          <div class="hC-leaf-icons"><div class="hC-leaf-pip filled"></div><div class="hC-leaf-pip filled"></div><div class="hC-leaf-pip filled"></div></div>
+          <span class="hC-leaf-name">새가족 교육</span><span class="hC-leaf-status done-status">✓</span>
+        </div>
+        <div class="hC-leaf-row" style="border-color:rgba(255,255,255,0.04)">
+          <div class="hC-leaf-icons"><div class="hC-leaf-pip filled"></div><div class="hC-leaf-pip filled"></div><div class="hC-leaf-pip filled"></div></div>
+          <span class="hC-leaf-name">여름성경학교</span><span class="hC-leaf-status done-status">✓</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hB-era era-past">
+      <div class="hB-era-dot" style="border-color:rgba(245,158,11,0.3);color:rgba(245,158,11,0.4)">청</div>
+      <div class="hB-era-header"><h4>청소년1팀</h4><p>14~16세 · 2018~2020</p></div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div class="hC-leaf-row" style="border-color:rgba(255,255,255,0.04)">
+          <div class="hC-leaf-icons"><div class="hC-leaf-pip filled"></div><div class="hC-leaf-pip filled"></div><div class="hC-leaf-pip filled"></div></div>
+          <span class="hC-leaf-name">세례 / 입교</span><span class="hC-leaf-status done-status">✓</span>
+        </div>
+        <div class="hC-leaf-row" style="border-color:rgba(255,255,255,0.04)">
+          <div class="hC-leaf-icons"><div class="hC-leaf-pip filled"></div><div class="hC-leaf-pip filled"></div><div class="hC-leaf-pip filled"></div></div>
+          <span class="hC-leaf-name">라이프가이드</span><span class="hC-leaf-status done-status">✓</span>
+        </div>
+        <div class="hC-leaf-row locked" style="border-color:rgba(255,255,255,0.04)">
+          <div class="hC-leaf-icons"><div class="hC-leaf-pip empty"></div><div class="hC-leaf-pip empty"></div><div class="hC-leaf-pip empty"></div></div>
+          <span class="hC-leaf-name">청소년 홀리클럽</span><span class="hC-leaf-status lock-status">미수료</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hB-era era-now">
+      <div class="hB-era-dot">✦</div>
+      <div class="hB-era-header"><h4>청년1팀 <span style="color:#52B788;font-size:11px">● 현재</span></h4><p>2023~</p></div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div class="hC-leaf-row" style="border-color:rgba(255,255,255,0.06)">
+          <div class="hC-leaf-icons"><div class="hC-leaf-pip filled"></div><div class="hC-leaf-pip filled"></div><div class="hC-leaf-pip filled"></div></div>
+          <span class="hC-leaf-name">주일예배 / 순모임</span><span class="hC-leaf-status done-status">✓ 완료</span>
+        </div>
+        <div class="hC-leaf-row" style="border-color:rgba(255,255,255,0.06)">
+          <div class="hC-leaf-icons"><div class="hC-leaf-pip gold"></div><div class="hC-leaf-pip half"></div><div class="hC-leaf-pip empty"></div></div>
+          <span class="hC-leaf-name">신앙수련회</span><span class="hC-leaf-status prog-status">▶ 진행</span>
+        </div>
+        <div class="hC-leaf-row locked" style="border-color:rgba(255,255,255,0.06)">
+          <div class="hC-leaf-icons"><div class="hC-leaf-pip empty"></div><div class="hC-leaf-pip empty"></div><div class="hC-leaf-pip empty"></div></div>
+          <span class="hC-leaf-name">MBC 바이블코스</span><span class="hC-leaf-status lock-status">🔒</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ══════ SAMPLE F: 뿌리이력 + 열매애니 ══════ -->
+<div id="hF" class="sec">
+<div class="combo-wrap">
+  <div class="combo-label">📋 조합 F — 이력: 뿌리 깊이 표현 &nbsp;×&nbsp; 수료: 열매/꽃 애니</div>
+
+  <div class="hA-profile" style="background:rgba(16,185,129,0.06);border-color:rgba(16,185,129,0.15)">
+    <div class="hA-av" style="background:linear-gradient(135deg,#10B981,#059669)">김</div>
+    <div><h3>김성실 성도</h3><p>청년1팀 · 25세</p></div>
+    <div class="hA-pct"><strong style="color:#34D399">42%</strong><small>전체수료</small></div>
+  </div>
+
+  <div class="hC-tree-layout">
+    <!-- 열매 -->
+    <div class="hC-fruits-zone fruits-zone" style="width:100%;background:rgba(16,185,129,0.05);border-color:rgba(16,185,129,0.2)">
+      <div class="hC-zone-label" style="color:rgba(52,211,153,0.7)">🍎 열매 · 삶 단계</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <div class="hA-leaf locked"><span class="leaf-icon">○</span>Start to Mission</div>
+        <div class="hA-leaf locked"><span class="leaf-icon">○</span>경제공부</div>
+        <div class="hA-leaf locked"><span class="leaf-icon">○</span>결혼예비학교</div>
+      </div>
+    </div>
+    <div class="hC-connector" style="background:linear-gradient(to bottom,rgba(16,185,129,0.4),rgba(52,211,153,0.3))"></div>
+
+    <!-- 현재 가지 -->
+    <div class="hC-branch-zone branch-zone" style="width:100%;background:rgba(16,185,129,0.05);border-color:rgba(16,185,129,0.2)">
+      <div class="hC-zone-label" style="color:rgba(52,211,153,0.7)">🌿 가지 · 청년1팀 현재</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <div class="hA-leaf done"><span class="leaf-icon">🍎</span>주일예배/순모임</div>
+        <div class="hA-leaf done"><span class="leaf-icon">🍎</span>새가족교육</div>
+        <div class="hA-leaf done"><span class="leaf-icon">🍎</span>세례/입교</div>
+        <div class="hA-leaf progress"><span class="leaf-icon">🌸</span>신앙수련회</div>
+        <div class="hA-leaf locked"><span class="leaf-icon">○</span>MBC코스</div>
+        <div class="hA-leaf locked"><span class="leaf-icon">○</span>예레미야</div>
+      </div>
+    </div>
+
+    <div class="hC-connector" style="background:linear-gradient(to bottom,rgba(52,211,153,0.3),rgba(139,90,43,0.4))"></div>
+
+    <!-- 뿌리: 이전 이력 (깊이 표현) -->
+    <div class="hC-root-zone root-zone" style="width:100%;background:rgba(139,90,43,0.07);border-color:rgba(139,90,43,0.25)">
+      <div class="hC-zone-label" style="color:rgba(180,130,60,0.7)">🌱 뿌리 · 지나온 신앙 이력</div>
+      <div class="hC-hist-group">
+        <div class="hC-hist-header">
+          <span class="hC-hist-era" style="background:rgba(139,92,246,0.15);color:#A78BFA">청소년2팀</span>
+          <span class="hC-hist-date">17~19세</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:7px">
+          <div class="hA-leaf done" style="font-size:10px;padding:4px 10px"><span class="leaf-icon">🍃</span>주일예배</div>
+          <div class="hA-leaf done" style="font-size:10px;padding:4px 10px"><span class="leaf-icon">🍃</span>수련회</div>
+          <div class="hA-leaf locked" style="font-size:10px;padding:4px 10px"><span class="leaf-icon">○</span>아이워십</div>
+        </div>
+      </div>
+      <div class="hC-hist-group">
+        <div class="hC-hist-header">
+          <span class="hC-hist-era" style="background:rgba(139,92,246,0.15);color:#A78BFA">청소년1팀</span>
+          <span class="hC-hist-date">14~16세</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:7px">
+          <div class="hA-leaf done" style="font-size:10px;padding:4px 10px"><span class="leaf-icon">🍃</span>주일예배</div>
+          <div class="hA-leaf done" style="font-size:10px;padding:4px 10px"><span class="leaf-icon">🍃</span>세례/입교</div>
+          <div class="hA-leaf done" style="font-size:10px;padding:4px 10px"><span class="leaf-icon">🍃</span>라이프가이드</div>
+          <div class="hA-leaf done" style="font-size:10px;padding:4px 10px"><span class="leaf-icon">🍃</span>수련회</div>
+        </div>
+      </div>
+      <div class="hC-hist-group">
+        <div class="hC-hist-header">
+          <span class="hC-hist-era era-elem">초등3팀</span>
+          <span class="hC-hist-date">12~13세</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:7px">
+          <div class="hA-leaf done" style="font-size:10px;padding:4px 10px"><span class="leaf-icon">🍃</span>주일예배</div>
+          <div class="hA-leaf done" style="font-size:10px;padding:4px 10px"><span class="leaf-icon">🍃</span>새가족교육</div>
+          <div class="hA-leaf done" style="font-size:10px;padding:4px 10px"><span class="leaf-icon">🍃</span>성경학교</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+function show(id, btn) {
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tnb').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+function toggle(header) {
+  const leaves = header.nextElementSibling;
+  const arrow = header.querySelector('span:last-child');
+  if (leaves.style.display === 'none' || leaves.style.display === '') {
+    leaves.style.display = 'flex';
+    if (arrow) arrow.textContent = '▴';
+  } else {
+    leaves.style.display = 'none';
+    if (arrow) arrow.textContent = '▾';
+  }
+}
+</script>
+</body>
+</html>
