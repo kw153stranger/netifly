@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>로드맵 시각화 샘플 4종</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Noto Sans KR', sans-serif; background: #F5F5F0; }
+
+/* NAV */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: #1B2A4A;
+  display: flex; gap: 0; overflow-x: auto;
+  scrollbar-width: none;
+}
+.nav::-webkit-scrollbar { display: none; }
+.nav-btn {
+  flex-shrink: 0;
+  padding: 14px 24px;
+  color: rgba(255,255,255,0.5);
+  font-size: 13px; font-weight: 500;
+  cursor: pointer; border: none; background: none;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s; white-space: nowrap;
+}
+.nav-btn.active { color: #F4A261; border-bottom-color: #F4A261; }
+.nav-btn:hover { color: white; }
+
+.section { display: none; padding-top: 52px; min-height: 100vh; }
+.section.active { display: block; }
+
+/* ============================================
+   SAMPLE 1: TIMELINE (수평 여정)
+   ============================================ */
+#s1 { background: linear-gradient(135deg, #0F2027, #203A43, #2C5364); }
+
+.s1-hero {
+  padding: 48px 32px 32px;
+  text-align: center;
+}
+.s1-hero .label {
+  display: inline-block;
+  background: rgba(244,162,97,0.2);
+  color: #F4A261;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  padding: 6px 16px; border-radius: 20px;
+  margin-bottom: 16px;
+}
+.s1-hero h2 { color: white; font-size: 26px; font-weight: 700; line-height: 1.3; }
+.s1-hero p { color: rgba(255,255,255,0.5); font-size: 14px; margin-top: 8px; }
+
+.s1-user-card {
+  margin: 0 24px 32px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+  padding: 20px 24px;
+  display: flex; align-items: center; gap: 16px;
+}
+.s1-avatar {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: linear-gradient(135deg, #F4A261, #E76F51);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 700; color: white;
+}
+.s1-user-info h3 { color: white; font-size: 16px; font-weight: 700; }
+.s1-user-info p { color: rgba(255,255,255,0.5); font-size: 13px; margin-top: 2px; }
+.s1-progress-bar {
+  margin-left: auto; text-align: right;
+}
+.s1-progress-bar span { color: #52B788; font-size: 22px; font-weight: 900; }
+.s1-progress-bar small { display: block; color: rgba(255,255,255,0.4); font-size: 11px; }
+
+/* Phase tabs */
+.s1-phases {
+  display: flex; gap: 0;
+  margin: 0 24px 24px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px; overflow: hidden;
+}
+.s1-phase-tab {
+  flex: 1; padding: 12px 8px; text-align: center;
+  cursor: pointer; transition: background 0.2s;
+  border: none; background: none;
+}
+.s1-phase-tab.p1 { background: rgba(82,183,136,0.3); }
+.s1-phase-tab.p2 { background: rgba(244,162,97,0.15); }
+.s1-phase-tab.p3 { background: rgba(255,255,255,0.03); }
+.s1-phase-tab .phase-icon { font-size: 18px; }
+.s1-phase-tab .phase-name { color: white; font-size: 12px; font-weight: 700; margin-top: 4px; }
+.s1-phase-tab .phase-sub { color: rgba(255,255,255,0.4); font-size: 10px; }
+.s1-phase-tab .phase-cnt { 
+  display: inline-block; margin-top: 6px;
+  background: rgba(255,255,255,0.15); 
+  color: white; font-size: 10px; font-weight: 700;
+  padding: 2px 8px; border-radius: 10px;
+}
+.s1-phase-tab.p1 .phase-cnt { background: #52B788; }
+
+/* Timeline */
+.s1-timeline { padding: 0 24px; position: relative; }
+.s1-tl-phase { margin-bottom: 8px; }
+.s1-tl-phase-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 16px;
+}
+.s1-tl-phase-line { flex: 1; height: 1px; background: rgba(255,255,255,0.1); }
+.s1-tl-phase-label {
+  color: rgba(255,255,255,0.4); font-size: 11px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase; white-space: nowrap;
+}
+
+.s1-tl-items {
+  display: flex; flex-direction: column; gap: 10px;
+  padding-left: 20px;
+  border-left: 2px solid rgba(255,255,255,0.1);
+}
+
+.s1-tl-item {
+  position: relative;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 12px;
+  cursor: pointer; transition: all 0.2s;
+  margin-left: 12px;
+}
+.s1-tl-item::before {
+  content: '';
+  position: absolute; left: -22px; top: 50%; transform: translateY(-50%);
+  width: 10px; height: 10px; border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  border: 2px solid rgba(255,255,255,0.15);
+}
+.s1-tl-item.done::before { background: #52B788; border-color: #52B788; }
+.s1-tl-item.current::before { background: #F4A261; border-color: #F4A261; box-shadow: 0 0 8px #F4A261; }
+.s1-tl-item:hover { background: rgba(255,255,255,0.1); transform: translateX(4px); }
+
+.s1-tl-item .item-check {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+}
+.s1-tl-item.done .item-check { background: rgba(82,183,136,0.2); color: #52B788; }
+.s1-tl-item.current .item-check { background: rgba(244,162,97,0.2); color: #F4A261; }
+.s1-tl-item.todo .item-check { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); }
+
+.s1-tl-item .item-info h4 { color: white; font-size: 14px; font-weight: 600; }
+.s1-tl-item .item-info p { color: rgba(255,255,255,0.4); font-size: 12px; margin-top: 2px; }
+.s1-tl-item .item-badge {
+  margin-left: auto; flex-shrink: 0;
+  font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 10px;
+}
+.done .item-badge { background: rgba(82,183,136,0.2); color: #52B788; }
+.current .item-badge { background: rgba(244,162,97,0.2); color: #F4A261; }
+.todo .item-badge { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); }
+
+.s1-spacer { height: 48px; }
+
+/* ============================================
+   SAMPLE 2: CARD GRID (단계별 카드)
+   ============================================ */
+#s2 { background: #FAFAF8; }
+
+.s2-header {
+  background: white;
+  padding: 32px 24px 0;
+  border-bottom: 1px solid #E5E7EB;
+}
+.s2-header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+.s2-logo {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: #2D6A4F;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 18px;
+}
+.s2-header h2 { font-size: 18px; font-weight: 700; color: #111; }
+.s2-header p { font-size: 13px; color: #6B7280; margin-top: 2px; }
+
+.s2-user-strip {
+  display: flex; align-items: center; gap: 10px;
+  background: #F0FDF4; border-radius: 10px;
+  padding: 12px 16px; margin-bottom: 24px;
+}
+.s2-user-dot { width: 8px; height: 8px; border-radius: 50%; background: #52B788; }
+.s2-user-strip span { font-size: 13px; font-weight: 600; color: #2D6A4F; }
+.s2-user-strip small { color: #6B7280; font-size: 12px; }
+.s2-user-strip .s2-pct { margin-left: auto; font-size: 13px; font-weight: 700; color: #2D6A4F; }
+
+.s2-phase-tabs {
+  display: flex; gap: 0; overflow-x: auto;
+  scrollbar-width: none;
+}
+.s2-phase-tabs::-webkit-scrollbar { display: none; }
+.s2-ptab {
+  flex-shrink: 0;
+  padding: 10px 20px;
+  font-size: 13px; font-weight: 600;
+  color: #9CA3AF; cursor: pointer;
+  border: none; background: none;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+}
+.s2-ptab.active { color: #2D6A4F; border-bottom-color: #2D6A4F; }
+
+.s2-body { padding: 28px 20px; }
+
+.s2-phase-section { display: none; }
+.s2-phase-section.active { display: block; }
+
+.s2-phase-banner {
+  border-radius: 16px; padding: 20px 20px;
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 16px;
+}
+.s2-pb-1 { background: linear-gradient(135deg, #D1FAE5, #A7F3D0); }
+.s2-pb-2 { background: linear-gradient(135deg, #FEF3C7, #FDE68A); }
+.s2-pb-3 { background: linear-gradient(135deg, #DBEAFE, #BFDBFE); }
+
+.s2-phase-banner .pb-icon { font-size: 32px; }
+.s2-phase-banner h3 { font-size: 18px; font-weight: 800; color: #111; }
+.s2-phase-banner p { font-size: 13px; color: #374151; margin-top: 4px; }
+.s2-phase-banner .pb-progress {
+  margin-left: auto; text-align: center;
+  background: white; border-radius: 12px; padding: 10px 16px;
+}
+.s2-phase-banner .pb-progress strong { font-size: 22px; font-weight: 900; color: #2D6A4F; display: block; }
+.s2-phase-banner .pb-progress small { font-size: 11px; color: #6B7280; }
+
+.s2-cards { display: flex; flex-direction: column; gap: 12px; }
+.s2-card {
+  background: white;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 14px;
+  padding: 16px;
+  display: flex; align-items: center; gap: 14px;
+  cursor: pointer; transition: all 0.2s;
+}
+.s2-card:hover { border-color: #52B788; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+.s2-card.done { background: #F0FDF4; border-color: #86EFAC; }
+.s2-card.current { background: #FFFBEB; border-color: #FCD34D; }
+
+.s2-card-num {
+  width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700;
+}
+.done .s2-card-num { background: #DCFCE7; color: #16A34A; }
+.current .s2-card-num { background: #FEF9C3; color: #CA8A04; }
+.todo .s2-card-num { background: #F3F4F6; color: #9CA3AF; }
+
+.s2-card-body h4 { font-size: 14px; font-weight: 700; color: #111; }
+.s2-card-body p { font-size: 12px; color: #6B7280; margin-top: 3px; }
+.s2-card-right { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.s2-card-tag {
+  font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 8px; white-space: nowrap;
+}
+.done .s2-card-tag { background: #DCFCE7; color: #16A34A; }
+.current .s2-card-tag { background: #FEF9C3; color: #B45309; }
+.todo .s2-card-tag { background: #F3F4F6; color: #9CA3AF; }
+
+/* ============================================
+   SAMPLE 3: MAP/JOURNEY (지도 여정)
+   ============================================ */
+#s3 { background: #E8F5E9; }
+
+.s3-topbar {
+  background: #2D6A4F;
+  padding: 20px 24px;
+  display: flex; align-items: center; gap: 12px;
+}
+.s3-topbar .back { color: rgba(255,255,255,0.6); font-size: 18px; cursor: pointer; }
+.s3-topbar h2 { color: white; font-size: 16px; font-weight: 700; }
+.s3-topbar .s3-badge {
+  margin-left: auto;
+  background: rgba(255,255,255,0.15);
+  color: white; font-size: 12px; font-weight: 600;
+  padding: 4px 12px; border-radius: 20px;
+}
+
+.s3-profile {
+  background: #2D6A4F;
+  padding: 0 24px 24px;
+  display: flex; gap: 16px; align-items: center;
+}
+.s3-avatar {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: linear-gradient(135deg, #F4A261, #E76F51);
+  border: 3px solid rgba(255,255,255,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; color: white; font-weight: 700;
+}
+.s3-profile-info h3 { color: white; font-size: 16px; font-weight: 700; }
+.s3-profile-info p { color: rgba(255,255,255,0.6); font-size: 12px; margin-top: 2px; }
+.s3-xp {
+  margin-left: auto; text-align: right;
+}
+.s3-xp strong { color: #F4A261; font-size: 20px; font-weight: 900; }
+.s3-xp small { display: block; color: rgba(255,255,255,0.5); font-size: 11px; }
+
+.s3-road-container {
+  padding: 24px 16px;
+  position: relative;
+}
+
+/* Road path */
+.s3-road {
+  display: flex; flex-direction: column; gap: 0;
+  position: relative;
+}
+
+.s3-zone {
+  position: relative;
+  padding: 16px 0;
+}
+
+.s3-zone-label {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.s3-zone-label .zlbadge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 20px; border-radius: 20px;
+  font-size: 13px; font-weight: 700;
+}
+.zone-green .zlbadge { background: #2D6A4F; color: white; }
+.zone-gold .zlbadge { background: #F4A261; color: white; }
+.zone-blue .zlbadge { background: #3B82F6; color: white; }
+
+/* Zigzag path */
+.s3-path-row {
+  display: flex;
+  margin-bottom: 8px;
+  position: relative;
+}
+.s3-path-row.left { justify-content: flex-start; padding-left: 20px; }
+.s3-path-row.right { justify-content: flex-end; padding-right: 20px; }
+.s3-path-row.center { justify-content: center; }
+
+.s3-node {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  cursor: pointer;
+}
+.s3-node-circle {
+  width: 64px; height: 64px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column;
+  font-size: 10px; font-weight: 700;
+  text-align: center; line-height: 1.3;
+  transition: transform 0.2s;
+  border: 3px solid;
+  position: relative;
+}
+.s3-node:hover .s3-node-circle { transform: scale(1.08); }
+
+.s3-node.done .s3-node-circle {
+  background: #2D6A4F; border-color: #52B788;
+  color: white; box-shadow: 0 4px 12px rgba(45,106,79,0.3);
+}
+.s3-node.current .s3-node-circle {
+  background: #F4A261; border-color: #E76F51;
+  color: white; box-shadow: 0 4px 16px rgba(244,162,97,0.5);
+  animation: pulse3 2s infinite;
+}
+.s3-node.locked .s3-node-circle {
+  background: #E5E7EB; border-color: #D1D5DB;
+  color: #9CA3AF;
+}
+
+@keyframes pulse3 {
+  0%, 100% { box-shadow: 0 4px 16px rgba(244,162,97,0.5); }
+  50% { box-shadow: 0 4px 24px rgba(244,162,97,0.8); }
+}
+
+.s3-node-label {
+  font-size: 11px; font-weight: 600; text-align: center;
+  max-width: 80px; line-height: 1.3;
+  color: #374151;
+}
+.s3-node.current .s3-node-label { color: #2D6A4F; font-weight: 800; }
+.s3-node.locked .s3-node-label { color: #9CA3AF; }
+
+/* Connector paths */
+.s3-connector {
+  text-align: center; margin: -4px 0;
+  font-size: 20px; color: #A7F3D0;
+  line-height: 1;
+}
+.s3-connector.gold { color: #FDE68A; }
+.s3-connector.blue { color: #BFDBFE; }
+
+.s3-done-stamp {
+  position: absolute; top: -4px; right: -4px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: #52B788; border: 2px solid white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: white;
+}
+
+/* ============================================
+   SAMPLE 4: TREE (트리 구조)
+   ============================================ */
+#s4 { background: #FFF8F0; }
+
+.s4-header {
+  background: linear-gradient(135deg, #1B2A4A, #2D3F6B);
+  padding: 32px 24px;
+}
+.s4-header-top { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.s4-header-top h2 { color: white; font-size: 18px; font-weight: 700; }
+.s4-header-top .s4-ver { 
+  margin-left: auto;
+  background: rgba(244,162,97,0.2); 
+  color: #F4A261; font-size: 11px; font-weight: 700;
+  padding: 3px 10px; border-radius: 8px;
+}
+
+.s4-user-row {
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(255,255,255,0.08); border-radius: 12px;
+  padding: 14px 16px;
+}
+.s4-avatar-sm {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, #F4A261, #E76F51);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 700; color: white;
+}
+.s4-user-row .info h4 { color: white; font-size: 14px; font-weight: 700; }
+.s4-user-row .info p { color: rgba(255,255,255,0.5); font-size: 12px; }
+.s4-user-row .s4-pbar {
+  margin-left: auto; width: 80px;
+}
+.s4-user-row .s4-pbar .pct { color: #52B788; font-size: 13px; font-weight: 700; text-align: right; }
+.s4-user-row .s4-pbar .track {
+  height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 4px;
+}
+.s4-user-row .s4-pbar .fill {
+  height: 100%; background: #52B788; border-radius: 2px;
+  width: 35%;
+}
+
+.s4-body { padding: 24px 20px; }
+.s4-body h3 { font-size: 15px; font-weight: 700; color: #111; margin-bottom: 20px; }
+
+/* Tree */
+.s4-tree { display: flex; flex-direction: column; gap: 0; }
+
+.s4-root {
+  text-align: center; margin-bottom: 0;
+}
+.s4-root-node {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: #1B2A4A; color: white;
+  padding: 12px 24px; border-radius: 12px;
+  font-size: 14px; font-weight: 700;
+}
+
+.s4-branch-container {
+  display: flex; gap: 0; position: relative;
+  margin-top: 0;
+}
+.s4-branch-container::before {
+  content: ''; position: absolute;
+  top: 0; left: 50%; transform: translateX(-50%);
+  width: 1px; height: 24px;
+  background: #D1D5DB;
+}
+
+.s4-branch {
+  flex: 1; padding: 0 6px; position: relative;
+}
+
+.s4-branch-header {
+  display: flex; flex-direction: column; align-items: center;
+  padding-top: 24px; margin-bottom: 12px;
+  position: relative;
+}
+.s4-branch-header::before {
+  content: ''; position: absolute;
+  top: 0; left: 50%; transform: translateX(-50%);
+  width: 1px; height: 24px;
+  background: #D1D5DB;
+}
+/* horizontal connector */
+.s4-branch-container .s4-branch:first-child .s4-branch-header::after,
+.s4-branch-container .s4-branch:last-child .s4-branch-header::after {
+  content: ''; position: absolute;
+  top: 0; height: 1px; background: #D1D5DB;
+}
+.s4-branch-container .s4-branch:first-child .s4-branch-header::after {
+  left: 50%; right: -50%;
+}
+.s4-branch-container .s4-branch:last-child .s4-branch-header::after {
+  right: 50%; left: -50%;
+}
+
+.s4-branch-title {
+  padding: 8px 14px; border-radius: 20px;
+  font-size: 12px; font-weight: 800; text-align: center;
+  white-space: nowrap; position: relative; z-index: 1;
+}
+.branch-green .s4-branch-title { background: #DCFCE7; color: #16A34A; }
+.branch-gold .s4-branch-title { background: #FEF3C7; color: #B45309; }
+.branch-blue .s4-branch-title { background: #DBEAFE; color: #1D4ED8; }
+
+.s4-leaves { display: flex; flex-direction: column; gap: 8px; }
+
+.s4-leaf {
+  border-radius: 10px; padding: 10px 12px;
+  display: flex; align-items: center; gap: 8px;
+  cursor: pointer; transition: all 0.2s;
+  border: 1.5px solid;
+  position: relative;
+}
+.s4-leaf::before {
+  content: ''; position: absolute;
+  top: 50%; left: -14px; width: 14px; height: 1px;
+}
+.s4-leaf:hover { transform: scale(1.02); }
+
+.branch-green .s4-leaf.done { background: #F0FDF4; border-color: #86EFAC; }
+.branch-green .s4-leaf.done::before { background: #86EFAC; }
+.branch-green .s4-leaf.current { background: #DCFCE7; border-color: #16A34A; }
+.branch-green .s4-leaf.current::before { background: #16A34A; }
+.branch-green .s4-leaf.todo { background: #F9FAFB; border-color: #E5E7EB; }
+.branch-green .s4-leaf.todo::before { background: #E5E7EB; }
+
+.branch-gold .s4-leaf.done { background: #FFFBEB; border-color: #FDE68A; }
+.branch-gold .s4-leaf.done::before { background: #FDE68A; }
+.branch-gold .s4-leaf.current { background: #FEF3C7; border-color: #F59E0B; }
+.branch-gold .s4-leaf.current::before { background: #F59E0B; }
+.branch-gold .s4-leaf.todo { background: #F9FAFB; border-color: #E5E7EB; }
+.branch-gold .s4-leaf.todo::before { background: #E5E7EB; }
+
+.branch-blue .s4-leaf.done { background: #EFF6FF; border-color: #BFDBFE; }
+.branch-blue .s4-leaf.done::before { background: #BFDBFE; }
+.branch-blue .s4-leaf.current { background: #DBEAFE; border-color: #3B82F6; }
+.branch-blue .s4-leaf.current::before { background: #3B82F6; }
+.branch-blue .s4-leaf.todo { background: #F9FAFB; border-color: #E5E7EB; }
+.branch-blue .s4-leaf.todo::before { background: #E5E7EB; }
+
+.s4-leaf-icon { font-size: 14px; flex-shrink: 0; }
+.s4-leaf-name { font-size: 11px; font-weight: 600; color: #111; line-height: 1.3; }
+.s4-leaf.todo .s4-leaf-name { color: #9CA3AF; }
+.s4-leaf-check { margin-left: auto; font-size: 12px; }
+
+/* Vertical branch connector */
+.s4-branch-stem {
+  width: 1px; background: #D1D5DB;
+  margin: 0 auto 0;
+  height: 12px;
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="nav">
+  <button class="nav-btn active" onclick="showSection('s1', this)">① 타임라인</button>
+  <button class="nav-btn" onclick="showSection('s2', this)">② 단계별 카드</button>
+  <button class="nav-btn" onclick="showSection('s3', this)">③ 지도/여정</button>
+  <button class="nav-btn" onclick="showSection('s4', this)">④ 트리 구조</button>
+</div>
+
+<!-- ============ SAMPLE 1: TIMELINE ============ -->
+<div id="s1" class="section active">
+  <div class="s1-hero">
+    <div class="label">✝ 신앙 내비게이션</div>
+    <h2>나의 신앙 여정</h2>
+    <p>청년 1팀 · 25세 · 수료율 35%</p>
+  </div>
+
+  <div class="s1-user-card">
+    <div class="s1-avatar">김</div>
+    <div class="s1-user-info">
+      <h3>김성실 성도</h3>
+      <p>청년1팀 · 입교 2023</p>
+    </div>
+    <div class="s1-progress-bar">
+      <span>35%</span>
+      <small>전체 진도</small>
+    </div>
+  </div>
+
+  <div class="s1-phases">
+    <div class="s1-phase-tab p1">
+      <div class="phase-icon">🌱</div>
+      <div class="phase-name">포 단계</div>
+      <div class="phase-sub">신앙기초</div>
+      <div class="phase-cnt">3/5 완료</div>
+    </div>
+    <div class="s1-phase-tab p2">
+      <div class="phase-icon">🌿</div>
+      <div class="phase-name">꿈 단계</div>
+      <div class="phase-sub">신앙성장</div>
+      <div class="phase-cnt">0/6</div>
+    </div>
+    <div class="s1-phase-tab p3">
+      <div class="phase-icon">🍎</div>
+      <div class="phase-name">삶 단계</div>
+      <div class="phase-sub">신앙확장</div>
+      <div class="phase-cnt">0/5</div>
+    </div>
+  </div>
+
+  <div class="s1-timeline">
+    <!-- 포 단계 -->
+    <div class="s1-tl-phase">
+      <div class="s1-tl-phase-header">
+        <span class="s1-tl-phase-label">🌱 포 · 신앙기초 · 부리내림</span>
+        <div class="s1-tl-phase-line"></div>
+      </div>
+      <div class="s1-tl-items">
+        <div class="s1-tl-item done">
+          <div class="item-check">✓</div>
+          <div class="item-info"><h4>주일예배 / 순모임</h4><p>정기 참여 · 매주</p></div>
+          <div class="item-badge">완료</div>
+        </div>
+        <div class="s1-tl-item done">
+          <div class="item-check">✓</div>
+          <div class="item-info"><h4>새가족 교육</h4><p>4주 과정 수료</p></div>
+          <div class="item-badge">완료</div>
+        </div>
+        <div class="s1-tl-item done">
+          <div class="item-check">✓</div>
+          <div class="item-info"><h4>세례 / 입교 교육</h4><p>2023년 봄 수료</p></div>
+          <div class="item-badge">완료</div>
+        </div>
+        <div class="s1-tl-item current">
+          <div class="item-check">▶</div>
+          <div class="item-info"><h4>신앙수련회</h4><p>2024 여름 수련회 등록 완료</p></div>
+          <div class="item-badge">진행중</div>
+        </div>
+        <div class="s1-tl-item todo">
+          <div class="item-check">○</div>
+          <div class="item-info"><h4>MBC 바이블 베이직 코스</h4><p>다음 단계 필수 과정</p></div>
+          <div class="item-badge">예정</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 꿈 단계 -->
+    <div class="s1-tl-phase" style="margin-top:24px">
+      <div class="s1-tl-phase-header">
+        <span class="s1-tl-phase-label">🌿 꿈 · 신앙성장 · 자라남</span>
+        <div class="s1-tl-phase-line"></div>
+      </div>
+      <div class="s1-tl-items" style="opacity:0.5">
+        <div class="s1-tl-item todo">
+          <div class="item-check">🔒</div>
+          <div class="item-info"><h4>예레미야 리더십</h4><p>포 단계 완료 후 오픈</p></div>
+          <div class="item-badge">잠김</div>
+        </div>
+        <div class="s1-tl-item todo">
+          <div class="item-check">🔒</div>
+          <div class="item-info"><h4>LIGHT워크 기도모임</h4><p>포 단계 완료 후 오픈</p></div>
+          <div class="item-badge">잠김</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="s1-spacer"></div>
+</div>
+
+<!-- ============ SAMPLE 2: CARD GRID ============ -->
+<div id="s2" class="section">
+  <div class="s2-header">
+    <div class="s2-header-top">
+      <div class="s2-logo">✝</div>
+      <div>
+        <h2>신앙 교육 로드맵</h2>
+        <p>명선교회 · 청년1팀</p>
+      </div>
+    </div>
+    <div class="s2-user-strip">
+      <div class="s2-user-dot"></div>
+      <span>김성실 성도</span>
+      <small>· 25세 · 청년1팀</small>
+      <span class="s2-pct">35% 완료</span>
+    </div>
+    <div class="s2-phase-tabs">
+      <button class="s2-ptab active" onclick="showPhase('ph1', this)">🌱 포 단계</button>
+      <button class="s2-ptab" onclick="showPhase('ph2', this)">🌿 꿈 단계</button>
+      <button class="s2-ptab" onclick="showPhase('ph3', this)">🍎 삶 단계</button>
+    </div>
+  </div>
+
+  <div class="s2-body">
+    <!-- 포 단계 -->
+    <div id="ph1" class="s2-phase-section active">
+      <div class="s2-phase-banner s2-pb-1">
+        <div class="pb-icon">🌱</div>
+        <div>
+          <h3>포 · 신앙기초</h3>
+          <p>부리내림 · 기초를 다지는 시간</p>
+        </div>
+        <div class="pb-progress">
+          <strong>3/5</strong>
+          <small>수료</small>
+        </div>
+      </div>
+      <div class="s2-cards">
+        <div class="s2-card done">
+          <div class="s2-card-num">01</div>
+          <div class="s2-card-body"><h4>주일예배 / 순모임</h4><p>정기 참여 과정</p></div>
+          <div class="s2-card-right"><span class="s2-card-tag">✓ 완료</span></div>
+        </div>
+        <div class="s2-card done">
+          <div class="s2-card-num">02</div>
+          <div class="s2-card-body"><h4>새가족 교육</h4><p>4주 과정</p></div>
+          <div class="s2-card-right"><span class="s2-card-tag">✓ 완료</span></div>
+        </div>
+        <div class="s2-card done">
+          <div class="s2-card-num">03</div>
+          <div class="s2-card-body"><h4>세례 / 입교 교육</h4><p>2023년 봄 수료</p></div>
+          <div class="s2-card-right"><span class="s2-card-tag">✓ 완료</span></div>
+        </div>
+        <div class="s2-card current">
+          <div class="s2-card-num">04</div>
+          <div class="s2-card-body"><h4>신앙수련회</h4><p>2024 여름 등록 완료</p></div>
+          <div class="s2-card-right"><span class="s2-card-tag">▶ 진행중</span></div>
+        </div>
+        <div class="s2-card todo">
+          <div class="s2-card-num">05</div>
+          <div class="s2-card-body"><h4>MBC 바이블 베이직 코스</h4><p>다음 권장 과정</p></div>
+          <div class="s2-card-right"><span class="s2-card-tag">예정</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 꿈 단계 -->
+    <div id="ph2" class="s2-phase-section">
+      <div class="s2-phase-banner s2-pb-2">
+        <div class="pb-icon">🌿</div>
+        <div>
+          <h3>꿈 · 신앙성장</h3>
+          <p>자라남 · 깊이를 더하는 시간</p>
+        </div>
+        <div class="pb-progress">
+          <strong>0/6</strong>
+          <small>수료</small>
+        </div>
+      </div>
+      <div class="s2-cards">
+        <div class="s2-card todo">
+          <div class="s2-card-num">01</div>
+          <div class="s2-card-body"><h4>예레미야 리더십</h4><p>포 단계 완료 후 오픈</p></div>
+          <div class="s2-card-right"><span class="s2-card-tag">🔒 잠김</span></div>
+        </div>
+        <div class="s2-card todo">
+          <div class="s2-card-num">02</div>
+          <div class="s2-card-body"><h4>LIGHT워크 기도모임</h4><p>포 단계 완료 후 오픈</p></div>
+          <div class="s2-card-right"><span class="s2-card-tag">🔒 잠김</span></div>
+        </div>
+        <div class="s2-card todo">
+          <div class="s2-card-num">03</div>
+          <div class="s2-card-body"><h4>바이블 스터디 구역/심야</h4><p>포 단계 완료 후 오픈</p></div>
+          <div class="s2-card-right"><span class="s2-card-tag">🔒 잠김</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 삶 단계 -->
+    <div id="ph3" class="s2-phase-section">
+      <div class="s2-phase-banner s2-pb-3">
+        <div class="pb-icon">🍎</div>
+        <div>
+          <h3>삶 · 신앙확장</h3>
+          <p>열매맺음 · 세상으로 나아가는 시간</p>
+        </div>
+        <div class="pb-progress">
+          <strong>0/5</strong>
+          <small>수료</small>
+        </div>
+      </div>
+      <div class="s2-cards">
+        <div class="s2-card todo">
+          <div class="s2-card-num">01</div>
+          <div class="s2-card-body"><h4>Start to Mission</h4><p>꿈 단계 완료 후 오픈</p></div>
+          <div class="s2-card-right"><span class="s2-card-tag">🔒 잠김</span></div>
+        </div>
+        <div class="s2-card todo">
+          <div class="s2-card-num">02</div>
+          <div class="s2-card-body"><h4>그리스도인의 경제공부</h4><p>꿈 단계 완료 후 오픈</p></div>
+          <div class="s2-card-right"><span class="s2-card-tag">🔒 잠김</span></div>
+        </div>
+        <div class="s2-card todo">
+          <div class="s2-card-num">03</div>
+          <div class="s2-card-body"><h4>결혼예비학교</h4><p>꿈 단계 완료 후 오픈</p></div>
+          <div class="s2-card-right"><span class="s2-card-tag">🔒 잠김</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SAMPLE 3: MAP/JOURNEY ============ -->
+<div id="s3" class="section">
+  <div class="s3-topbar">
+    <span class="back">←</span>
+    <h2>✝ 신앙 여정 지도</h2>
+    <span class="s3-badge">청년1팀</span>
+  </div>
+  <div class="s3-profile">
+    <div class="s3-avatar">김</div>
+    <div class="s3-profile-info">
+      <h3>김성실 성도</h3>
+      <p>25세 · 청년1팀 · 2023 입교</p>
+    </div>
+    <div class="s3-xp">
+      <strong>350 XP</strong>
+      <small>신앙 포인트</small>
+    </div>
+  </div>
+
+  <div class="s3-road-container">
+    <div class="s3-road">
+
+      <!-- 포 단계 ZONE -->
+      <div class="s3-zone zone-green">
+        <div class="s3-zone-label">
+          <span class="zlbadge">🌱 포 단계 · 신앙기초</span>
+        </div>
+
+        <div class="s3-path-row left">
+          <div class="s3-node done">
+            <div class="s3-node-circle">
+              <div style="font-size:18px">✓</div>
+              <div>주일예배</div>
+              <div class="s3-done-stamp">✓</div>
+            </div>
+            <div class="s3-node-label">주일예배<br>순모임</div>
+          </div>
+        </div>
+        <div class="s3-connector">↓</div>
+        <div class="s3-path-row right">
+          <div class="s3-node done">
+            <div class="s3-node-circle">
+              <div style="font-size:18px">✓</div>
+              <div>새가족</div>
+              <div class="s3-done-stamp">✓</div>
+            </div>
+            <div class="s3-node-label">새가족<br>교육</div>
+          </div>
+        </div>
+        <div class="s3-connector">↓</div>
+        <div class="s3-path-row left">
+          <div class="s3-node done">
+            <div class="s3-node-circle">
+              <div style="font-size:18px">✓</div>
+              <div>세례/입교</div>
+              <div class="s3-done-stamp">✓</div>
+            </div>
+            <div class="s3-node-label">세례<br>입교교육</div>
+          </div>
+        </div>
+        <div class="s3-connector">↓</div>
+        <div class="s3-path-row right">
+          <div class="s3-node current">
+            <div class="s3-node-circle">
+              <div style="font-size:18px">▶</div>
+              <div>수련회</div>
+            </div>
+            <div class="s3-node-label">신앙<br>수련회</div>
+          </div>
+        </div>
+        <div class="s3-connector">↓</div>
+        <div class="s3-path-row center">
+          <div class="s3-node locked">
+            <div class="s3-node-circle">
+              <div style="font-size:18px">🔒</div>
+              <div>MBC</div>
+            </div>
+            <div class="s3-node-label">MBC<br>바이블코스</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 꿈 단계 ZONE -->
+      <div class="s3-zone zone-gold" style="margin-top:16px">
+        <div class="s3-zone-label">
+          <span class="zlbadge">🌿 꿈 단계 · 신앙성장</span>
+        </div>
+        <div class="s3-path-row left">
+          <div class="s3-node locked">
+            <div class="s3-node-circle">
+              <div style="font-size:18px">🔒</div>
+              <div>리더십</div>
+            </div>
+            <div class="s3-node-label">예레미야<br>리더십</div>
+          </div>
+        </div>
+        <div class="s3-connector gold">↓</div>
+        <div class="s3-path-row right">
+          <div class="s3-node locked">
+            <div class="s3-node-circle">
+              <div style="font-size:18px">🔒</div>
+              <div>기도모임</div>
+            </div>
+            <div class="s3-node-label">LIGHT워크<br>기도모임</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============ SAMPLE 4: TREE ============ -->
+<div id="s4" class="section">
+  <div class="s4-header">
+    <div class="s4-header-top">
+      <h2>✝ 신앙 성장 트리</h2>
+      <span class="s4-ver">청년1팀</span>
+    </div>
+    <div class="s4-user-row">
+      <div class="s4-avatar-sm">김</div>
+      <div class="info">
+        <h4>김성실 성도</h4>
+        <p>25세 · 2023 입교</p>
+      </div>
+      <div class="s4-pbar">
+        <div class="pct">35%</div>
+        <div class="track"><div class="fill"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="s4-body">
+    <h3>나의 신앙 과목 트리</h3>
+    <div class="s4-tree">
+      <!-- Root -->
+      <div class="s4-root">
+        <div class="s4-root-node">✝ 명선교회 신앙 여정</div>
+      </div>
+
+      <!-- Branches -->
+      <div class="s4-branch-container">
+        <!-- 포 -->
+        <div class="s4-branch branch-green">
+          <div class="s4-branch-header">
+            <span class="s4-branch-title">🌱 포 단계</span>
+          </div>
+          <div class="s4-branch-stem"></div>
+          <div class="s4-leaves">
+            <div class="s4-leaf done">
+              <span class="s4-leaf-icon">✓</span>
+              <span class="s4-leaf-name">주일예배<br>순모임</span>
+              <span class="s4-leaf-check">✓</span>
+            </div>
+            <div class="s4-leaf done">
+              <span class="s4-leaf-icon">✓</span>
+              <span class="s4-leaf-name">새가족<br>교육</span>
+              <span class="s4-leaf-check">✓</span>
+            </div>
+            <div class="s4-leaf done">
+              <span class="s4-leaf-icon">✓</span>
+              <span class="s4-leaf-name">세례<br>입교교육</span>
+              <span class="s4-leaf-check">✓</span>
+            </div>
+            <div class="s4-leaf current">
+              <span class="s4-leaf-icon">▶</span>
+              <span class="s4-leaf-name">신앙<br>수련회</span>
+              <span class="s4-leaf-check">▶</span>
+            </div>
+            <div class="s4-leaf todo">
+              <span class="s4-leaf-icon">🔒</span>
+              <span class="s4-leaf-name">MBC<br>바이블코스</span>
+              <span class="s4-leaf-check">-</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 꿈 -->
+        <div class="s4-branch branch-gold">
+          <div class="s4-branch-header">
+            <span class="s4-branch-title">🌿 꿈 단계</span>
+          </div>
+          <div class="s4-branch-stem"></div>
+          <div class="s4-leaves">
+            <div class="s4-leaf todo">
+              <span class="s4-leaf-icon">🔒</span>
+              <span class="s4-leaf-name">예레미야<br>리더십</span>
+              <span class="s4-leaf-check">-</span>
+            </div>
+            <div class="s4-leaf todo">
+              <span class="s4-leaf-icon">🔒</span>
+              <span class="s4-leaf-name">LIGHT워크<br>기도</span>
+              <span class="s4-leaf-check">-</span>
+            </div>
+            <div class="s4-leaf todo">
+              <span class="s4-leaf-icon">🔒</span>
+              <span class="s4-leaf-name">바이블<br>스터디</span>
+              <span class="s4-leaf-check">-</span>
+            </div>
+            <div class="s4-leaf todo">
+              <span class="s4-leaf-icon">🔒</span>
+              <span class="s4-leaf-name">여름/겨울<br>수련회</span>
+              <span class="s4-leaf-check">-</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 삶 -->
+        <div class="s4-branch branch-blue">
+          <div class="s4-branch-header">
+            <span class="s4-branch-title">🍎 삶 단계</span>
+          </div>
+          <div class="s4-branch-stem"></div>
+          <div class="s4-leaves">
+            <div class="s4-leaf todo">
+              <span class="s4-leaf-icon">🔒</span>
+              <span class="s4-leaf-name">Start to<br>Mission</span>
+              <span class="s4-leaf-check">-</span>
+            </div>
+            <div class="s4-leaf todo">
+              <span class="s4-leaf-icon">🔒</span>
+              <span class="s4-leaf-name">경제<br>공부</span>
+              <span class="s4-leaf-check">-</span>
+            </div>
+            <div class="s4-leaf todo">
+              <span class="s4-leaf-icon">🔒</span>
+              <span class="s4-leaf-name">결혼<br>예비학교</span>
+              <span class="s4-leaf-check">-</span>
+            </div>
+            <div class="s4-leaf todo">
+              <span class="s4-leaf-icon">🔒</span>
+              <span class="s4-leaf-name">청년<br>비전순례</span>
+              <span class="s4-leaf-check">-</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function showPhase(id, btn) {
+  document.querySelectorAll('.s2-phase-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.s2-ptab').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
